@@ -1,12 +1,6 @@
-def read_input() -> list[str]:
+def read_input() -> list[str]:  # noqa
     with open("../data/10_pipe_maze.txt", "r") as f:
         text = f.read().split("\n")[:-1]
-#     text = """..F7.
-# .FJ|.
-# SJ.L7
-# |F--J
-# LJ...
-# """.split("\n")[:-1]
     return text
 
 
@@ -74,10 +68,10 @@ def find_valid_next_moves_from_start(
     valid_moves = []
     mmap = move_map()
     row_idx, col_idx = starting_index
-    if text[row_idx][col_idx - 1] in mmap["e"] and col_idx - 1 >= 0:
-        valid_moves.append("e")
-    if text[row_idx][col_idx + 1] in mmap["w"] and col_idx + 1 < len(text[0]):
+    if text[row_idx][col_idx - 1] in mmap["w"] and col_idx - 1 >= 0:
         valid_moves.append("w")
+    if text[row_idx][col_idx + 1] in mmap["e"] and col_idx + 1 < len(text[0]):
+        valid_moves.append("e")
     if text[row_idx - 1][col_idx] in mmap["n"] and row_idx - 1 >= 0:
         valid_moves.append("n")
     if text[row_idx + 1][col_idx] in mmap["s"] and row_idx + 1 < len(text):
