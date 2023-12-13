@@ -48,32 +48,34 @@ def fill_next(text: str, config: list[int], total: int) -> int:
     # print(q_idxs)
     if len(q_idxs) == 0:
         if is_valid(text, config):
-            print(text)
             return 1
     else:
         new_text1 = "".join([c if i != q_idxs[0] else "#" for i, c in enumerate(text)])
-        print(new_text1, "p1", is_potential(new_text1, config))
+        # print(new_text1, "p1", is_potential(new_text1, config))
         if is_potential(new_text1, config):
             # print(new_text1, "p1")
             total += fill_next(new_text1, config, 0)
         new_text2 = "".join([c if i != q_idxs[0] else "." for i, c in enumerate(text)])
-        print(new_text2, "p2", is_potential(new_text2, config))
+        # print(new_text2, "p2", is_potential(new_text2, config))
         if is_potential(new_text2, config):
             # print(new_text2, "p2")
             total += fill_next(new_text2, config, 0)
         return total
+    return total
 
 
 def main() -> None:
     text = read_input()
-    text = "?".join(["#??????#??."] * 1)
+    # text = "?".join(["#??????#??."] * 1)
     total = 0
-    # for t in text:
-    #     candidate, config = parse_map(t)
-    #     print(candidate, config)
-        # fill_next(candidate, config, 0)
+    for t in text:
+        print(t)
+        candidate, config = parse_map(t)
+        candidate = "?".join([candidate] * 5)
+        config = config * 5
+        total += fill_next(candidate, config, 0)
     print(total)
-    print(fill_next(text, [2, 7] * 1, 0))
+    # print(fill_next(text, [2, 7] * 1, 0))
     # print(is_potential(".#.#####?#?#?#?", [1, 3, 1, 6] * 1))
     return None
 
