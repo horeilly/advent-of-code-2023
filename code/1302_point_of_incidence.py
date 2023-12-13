@@ -18,9 +18,16 @@ def find_reflection(pattern: list[str]) -> int:
         p1 = pattern[:n]
         p2 = pattern[n:(2 * n)][::-1]
         p1 = p1[len(p1) - len(p2):]
-        if p1 == p2:
+        edit_distance = compute_edit_distance(p1, p2)
+        if edit_distance == 1:
             return n
     return -1
+
+
+def compute_edit_distance(part1: list[str], part2: list[str]) -> int:
+    p1 = "".join(part1)
+    p2 = "".join(part2)
+    return sum([1 if p1[i] != p2[i] else 0 for i in range(len(p1))])
 
 
 def main() -> None:  # noqa
