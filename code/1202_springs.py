@@ -1,5 +1,3 @@
-from itertools import combinations
-
 def read_input() -> list[str]:  # noqa
     with open("../data/12_springs.txt", "r") as f:
         text = f.read().split("\n")[:-1]
@@ -12,68 +10,71 @@ def parse_map(text: str) -> tuple:
     return candidate, config
 
 
-def check_valid_solution(solution: str, config: list[int]) -> bool:
-    solution = solution.replace(".", " ")
-    solution_config = [s.count("#") for s in solution.split()]
-    return solution_config == config
-
-
-def get_all_q_indexes(candidate: str) -> list[int]:
-    return [i for i, c in enumerate(candidate) if c == "?"]
-
-
-def get_all_insertion_indexes(q_indexes: list[int]) -> list[list[int]]:
-    all_combos = []
-    for i in range(len(q_indexes) + 1):
-        for c in combinations(q_indexes, i):
-            all_combos.append(list(c))
-    return all_combos
-
-
-def build_solution(candidate: str, insertion_indexes: list[int]) -> str:
-    solution = ""
-    for i in range(len(candidate)):
-        if i in insertion_indexes:
-            solution += "#"
-        elif candidate[i] == "?":
-            solution += "."
-        else:
-            solution += candidate[i]
-    return solution
-
-
-def find_solutions(candidate: str, config: list[int]) -> list[str]:
-    solns = []
-    q_idxs = get_all_q_indexes(candidate)
-    i_idxs = get_all_insertion_indexes(q_idxs)
-    for i in i_idxs:
-        soln = build_solution(candidate, i)
-        if check_valid_solution(soln, config):
-            solns.append(soln)
-    return solns
-
-
-def is_still_valid(text: str) -> bool:
-    text.split()
-
-
-def fill_next(text: str) -> str:
-    if "?" not in text:
-        return text
+def is_full(text: str, config: list[int]) -> bool:
+    if text.count("#") == sum(config):
+        return True
     else:
-        text = text.replace("?", "#", 1)
-        if is_still_valid(text):
+        return False
+
+
+def is_potential(text: str, config: list[int]) -> bool:
+    deterministic_text = text.split("?")[0]
+    candidate = " ".join(deterministic_text.split(".")).split()
+    candidate_config = [c.count("#") for c in candidate]
+    if len(candidate_config) > len(config):
+        return False
+    else:
+        for i, (cand, conf) in enumerate(zip(candidate_config, config)):
+            if i == len(candidate_config) - 1:
+                if conf < cand:
+                    return False
+            else:
+                if cand != conf:
+                    return False
+        return True
+
+
+def is_valid(text: str, config: list[int]) -> bool:
+    candidate = " ".join(text.split(".")).split()
+    candidate_config = [c.count("#") for c in candidate]
+    if candidate_config == config:
+        return True
+    else:
+        return False
+
+
+def fill_next(text: str, config: list[int], total: int) -> int:
+    q_idxs = [i for i, c in enumerate(text) if c == "?"]
+    # print(q_idxs)
+    if len(q_idxs) == 0:
+        if is_valid(text, config):
             print(text)
-            return fill_next(text)
-        else:
-            text = text.replace("#", ".", 1)
-            return fill_next(text)
+            return 1
+    else:
+        new_text1 = "".join([c if i != q_idxs[0] else "#" for i, c in enumerate(text)])
+        print(new_text1, "p1", is_potential(new_text1, config))
+        if is_potential(new_text1, config):
+            # print(new_text1, "p1")
+            total += fill_next(new_text1, config, 0)
+        new_text2 = "".join([c if i != q_idxs[0] else "." for i, c in enumerate(text)])
+        print(new_text2, "p2", is_potential(new_text2, config))
+        if is_potential(new_text2, config):
+            # print(new_text2, "p2")
+            total += fill_next(new_text2, config, 0)
+        return total
 
 
 def main() -> None:
     text = read_input()
-    text = "?.#??"
-    fill_next(text)
+    text = "?".join(["#??????#??."] * 1)
+    total = 0
+    # for t in text:
+    #     candidate, config = parse_map(t)
+    #     print(candidate, config)
+        # fill_next(candidate, config, 0)
+    print(total)
+    print(fill_next(text, [2, 7] * 1, 0))
+    # print(is_potential(".#.#####?#?#?#?", [1, 3, 1, 6] * 1))
     return None
 
 
