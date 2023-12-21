@@ -1,4 +1,4 @@
-def read_input() -> tuple[list[str], list[str]]:
+def read_input() -> tuple[list[str], list[str]]:  # noqa
     with open("../data/19_aplenty.txt", "r") as f:
         text = f.read()[:-1].split("\n\n")
     instructions = text[0].split("\n")

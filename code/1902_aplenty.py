@@ -1,24 +1,6 @@
-def read_input() -> tuple[list[str], list[str]]:
+def read_input() -> tuple[list[str], list[str]]:  # noqa
     with open("../data/19_aplenty.txt", "r") as f:
         text = f.read()[:-1].split("\n\n")
-    text = """px{a<2006:qkq,m>2090:A,rfg}
-pv{a>1716:R,A}
-lnx{m>1548:A,A}
-rfg{s<537:gd,x>2440:R,A}
-qs{s>3448:A,lnx}
-qkq{x<1416:A,crn}
-crn{x>2662:A,R}
-in{s<1351:px,qqz}
-qqz{s>2770:qs,m<1801:hdj,R}
-gd{a>3333:R,R}
-hdj{m>838:A,pv}
-
-{x=787,m=2655,a=1222,s=2876}
-{x=1679,m=44,a=2067,s=496}
-{x=2036,m=264,a=79,s=2244}
-{x=2461,m=1339,a=466,s=291}
-{x=2127,m=1623,a=2188,s=1013}
-"""[:-1].split("\n\n")
     instructions = text[0].split("\n")
     parts = text[1].split("\n")
     return instructions, parts
@@ -69,51 +51,36 @@ def apply_workflow(instructions: list[tuple[str, str]], params: dict[str, int], 
         if instruction[0] is None:
             if instruction[1] in result_store:
                 result_store[instruction[1]].append(params.copy())
-                continue
-            output.append((instruction[1], params.copy()))
-            continue
+            else:
+                output.append((instruction[1], params.copy()))
+            return output, result_store
         else:
             letter = instruction[0][0]
             symbol = instruction[0][1]
             value = int(instruction[0][2:])
         if symbol == "<":
-            p = params.copy()
-            p.update({letter + "_max": value - 1})
-            if instruction[1] in result_store:
-                result_store[instruction[1]].append(params.copy())
-                continue
-            output.append((instruction[1], p))
-            params.update({letter + "_min": value})
+            split_params = [params.copy(), params.copy()]
+            split_params[0].update({letter + "_max": value - 1})
+            split_params[1].update({letter + "_min": value})
+            if instruction[1] in result_store:  # noqa
+                result_store[instruction[1]].append(split_params[0])
+                params = split_params[1].copy()
+            else:
+                output.append((instruction[1], split_params[0]))
+                params = split_params[1].copy()
         elif symbol == ">":
-            p = params.copy()
-            p.update({letter + "_min": value + 1})
-            if instruction[1] in result_store:
-                result_store[instruction[1]].append(params.copy())
-                continue
-            output.append((instruction[1], p))
-            params.update({letter + "_max": value})
+            split_params = [params.copy(), params.copy()]
+            split_params[0].update({letter + "_min": value + 1})
+            split_params[1].update({letter + "_max": value})
+            if instruction[1] in result_store:  # noqa
+                result_store[instruction[1]].append(split_params[0])
+                params = split_params[1].copy()
+            else:
+                output.append((instruction[1], split_params[0]))
+                params = split_params[1].copy()
         else:
             raise ValueError(f"Unknown symbol: {symbol}")
     return output, result_store
-
-
-
-# def apply_workflow(instructions: list[tuple[str, str]], part: dict[str, int]) -> str:
-#     for instruction in instructions:
-#         if instruction[0] is None:
-#             return instruction[1]
-#         else:
-#             letter = instruction[0][0]
-#             symbol = instruction[0][1]
-#             value = int(instruction[0][2:])
-#         if symbol == "<":
-#             if part[letter] < value:
-#                 return instruction[1]
-#         elif symbol == ">":
-#             if part[letter] > value:
-#                 return instruction[1]
-#         else:
-#             raise ValueError(f"Unknown symbol: {symbol}")
 
 
 def main() -> None:
@@ -129,16 +96,12 @@ def main() -> None:
         for o in output:
             queue.append(o)
     print("A")
+    total = 0
     for r in result_store["A"]:
-        print(r)
-    print("R")
-    for r in result_store["R"]:
-        print(r)
+        total += ((r["x_max"] - r["x_min"] + 1) * (r["m_max"] - r["m_min"] + 1) *
+                  (r["a_max"] - r["a_min"] + 1) * (r["s_max"] - r["s_min"] + 1))
+    print(total)
     return None
-
-# {xn: 1, xx: 4000, mn: 1, mx: 4000, an: 1, ax: 4000, sn: 1, sx: 1350}
-# {xn: 1, xx: 4000, mn: 1, mx: 4000, an: 1, ax: 4000, sn: 2771, sx: 4000}
-# {xn: 1, xx: 4000, mn: 1, mx: 1800, an: 1, ax: 4000, sn: 1351, sx: 2770}
 
 
 if __name__ == "__main__":
